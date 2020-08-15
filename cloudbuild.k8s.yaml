@@ -1,0 +1,27 @@
+steps:
+    - name: 'gcr.io/cloud-builders/docker'
+      args: ['build','-t','gcr.io/fullcycle-exemplos/live-ci-cd:latest', '-t', 'gcr.io/fullcycle-exemplos/live-ci-cd:$SHORT_SHA','.']
+
+    - name: 'docker'
+      args: ['run','-d','--name','goapp','gcr.io/fullcycle-exemplos/live-ci-cd:latest']
+
+    - name: 'docker'
+      args: ['exec','goapp','go','test']
+
+    - name: 'docker'
+      args: ['push','gcr.io/fullcycle-exemplos/live-ci-cd:latest']
+
+    - name: 'docker'
+      args: ['push','gcr.io/fullcycle-exemplos/live-ci-cd:$SHORT_SHA']
+
+    - name: 'gcr.io/cloud-builders/kubectl'
+      args: [
+        'set',
+        'image',
+        'deployment',
+        'goapp',
+        'goapp=gcr.io/fullcycle-exemplos/live-ci-cd:$SHORT_SHA'
+      ]
+      env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=fullcycle'

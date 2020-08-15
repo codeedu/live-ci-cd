@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goapp
+  template:
+    metadata:
+      labels:
+        app: goapp
+    spec:
+      containers:
+        - name: goapp
+          image: gcr.io/fullcycle-exemplos/live-ci-cd:latest
+          ports:
+            - containerPort: 8080
+
+---
+    
+apiVersion: v1
+kind: Service
+metadata:
+    name: goapp-service
+    labels:
+        app: goapp
+spec:
+    type: LoadBalancer
+    ports:
+        - protocol: TCP
+          name: http-svc
+          port: 80
+          targetPort: 8080
+    selector:
+        app: goapp 
